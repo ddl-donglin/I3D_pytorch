@@ -84,6 +84,7 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Cha
                 num_iter += 1
                 # get the inputs
                 inputs, labels = data
+                print(inputs, labels)
 
                 # wrap them in Variable
                 inputs = Variable(inputs.cuda())
@@ -107,6 +108,7 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Cha
                 tot_loss += loss.data[0]
                 loss.backward()
 
+                print(phase)
                 if num_iter == num_steps_per_update and phase == 'train':
                     steps += 1
                     num_iter = 0
@@ -124,6 +126,7 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Cha
                     print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
                                                                                          tot_cls_loss / num_iter, (
                                                                                                  tot_loss * num_steps_per_update) / num_iter))
+        print("咋回事没加一？", steps)
 
 
 if __name__ == '__main__':

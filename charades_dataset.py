@@ -7,6 +7,8 @@ import cv2
 import numpy as np
 import torch
 import torch.utils.data as data_utl
+from torchvision import transforms
+import videotransforms
 
 
 def video_to_tensor(pic):
@@ -121,3 +123,31 @@ class Charades(data_utl.Dataset):
 
     def __len__(self):
         return len(self.data)
+
+
+if __name__ == '__main__':
+
+    batch_size = 8 * 5
+
+    train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
+                                           videotransforms.RandomHorizontalFlip()])
+
+    test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
+
+    root_path = 'data/Charades_v1_rgb'
+
+    dataset = Charades('data/charades.json', 'training', root_path,
+                       'rgb', train_transforms)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                             pin_memory=True)
+    val_dataset = Charades('data/charades.json', 'testing', root_path,
+                           'rgb', test_transforms)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                                 pin_memory=True)
+
+    dataloaders = {'train': dataloader, 'val': val_dataloader}
+    datasets = {'train': dataset, 'val': val_dataset}
+
+    for data in dataloaders['train']:
+        inputs, labels = data
+        print(inputs, labels)

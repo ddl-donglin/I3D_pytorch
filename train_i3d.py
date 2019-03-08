@@ -23,7 +23,8 @@ parser.add_argument('-root', type=str)
 args = parser.parse_args()
 
 
-def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Charades_v1_rgb/Charades_v1_rgb', train_split='data/charades.json',
+def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Charades_v1_rgb/Charades_v1_rgb',
+        train_split='data/charades.json',
         batch_size=8 * 5, save_model='test_model'):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -119,10 +120,10 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Cha
                         # save model
                         torch.save(i3d.module.state_dict(), save_model + str(steps).zfill(6) + '.pt')
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.
-            if phase == 'val':
-                print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
-                                                                                     tot_cls_loss / num_iter, (
-                                                                                             tot_loss * num_steps_per_update) / num_iter))
+                if phase == 'val':
+                    print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
+                                                                                         tot_cls_loss / num_iter, (
+                                                                                                 tot_loss * num_steps_per_update) / num_iter))
 
 
 if __name__ == '__main__':

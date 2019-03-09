@@ -86,7 +86,10 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
                     label = np.full((1, end_f - start_f + 1), actions.index(each_ins['category']))
+                    print(video_path)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
+
+                    break
 
     return vidor_dataset_list
 
@@ -94,7 +97,12 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
 class VidorPytorchTrain(data_utl.Dataset):
 
     def __init__(self, anno_rpath, splits, video_rpath, mode, task='action', transforms=None, low_memory=True):
-        self.data = make_vidor_dataset(anno_rpath, video_rpath, splits, task, low_memory)
+        self.data = make_vidor_dataset(
+            anno_rpath=anno_rpath,
+            splits=splits,
+            video_rpath=video_rpath,
+            task=task,
+            low_memory=low_memory)
         self.splits = splits
         self.transforms = transforms
         self.mode = mode
@@ -127,8 +135,15 @@ class VidorPytorchTrain(data_utl.Dataset):
 
 
 class VidorPytorchExtract(data_utl.Dataset):
-    def __init__(self, anno_rpath, save_dir, splits, video_rpath, mode, task='action', transforms=None, low_memory=True):
-        self.data = make_vidor_dataset(anno_rpath, video_rpath, splits, task, low_memory)
+    def __init__(self, anno_rpath, save_dir, splits,
+                 video_rpath, mode, task='action',
+                 transforms=None, low_memory=True):
+        self.data = make_vidor_dataset(
+            anno_rpath=anno_rpath,
+            splits=splits,
+            video_rpath=video_rpath,
+            task=task,
+            low_memory=low_memory)
         self.splits = splits
         self.transforms = transforms
         self.mode = mode
@@ -170,5 +185,7 @@ if __name__ == '__main__':
     splits = ['validation']
     video_rpath = base_path + 'val_vids'
     task = 'action'
-    vidor_dataset_list = make_vidor_dataset(anno_rpath, splits, video_rpath, task)
-    print(vidor_dataset_list)
+    vidor_dataset = VidOR(anno_rpath, video_rpath, splits, True)
+    print(vidor_dataset.get_video_path('4189100053'))
+    # vidor_dataset_list = make_vidor_dataset(anno_rpath, splits, video_rpath, task)
+    # print(vidor_dataset_list)

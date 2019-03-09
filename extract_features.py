@@ -12,15 +12,15 @@ from vidor_dataset import VidorPytorchExtract as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-mode', type=str, help='rgb or flow')
-parser.add_argument('-load_model', type=str)
-parser.add_argument('-root', type=str)
-parser.add_argument('-gpu', type=str)
-parser.add_argument('-save_dir', type=str)
-
-args = parser.parse_args()
-os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-mode', type=str, help='rgb or flow')
+# parser.add_argument('-load_model', type=str)
+# parser.add_argument('-root', type=str)
+# parser.add_argument('-gpu', type=str)
+# parser.add_argument('-save_dir', type=str)
+#
+# args = parser.parse_args()
+# os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 
 def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,

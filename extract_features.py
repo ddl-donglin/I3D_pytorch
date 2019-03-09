@@ -8,7 +8,7 @@ from torchvision import transforms
 import videotransforms
 import numpy as np
 from pytorch_i3d import InceptionI3d
-from charades_dataset_full import Charades as Dataset
+from vidor_dataset import VidorPytorchExtract as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
@@ -23,17 +23,32 @@ args = parser.parse_args()
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 
-def run(anno_rpath, video_rpath, max_steps=64e3, mode='rgb', batch_size=1,
-        load_model='models/rgb_charades.pt', save_dir='output/features/'):
-    # setup dataset
+def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,
+        load_model='models/rgb_charades.pt', save_dir='output/features/', low_memory=True):
+
+    train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
+                                           videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    dataset = Dataset(split, 'training', root, mode, test_transforms, num=-1, save_dir=save_dir)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=8,
+    dataset = Dataset(anno_rpath=anno_rpath,
+                      splits=['training'],
+                      video_rpath=video_rpath,
+                      mode=mode,
+                      transforms=train_transforms,
+                      low_memory=low_memory,
+                      save_dir=save_dir)
+
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                              pin_memory=True)
 
-    val_dataset = Dataset(split, 'testing', root, mode, test_transforms, num=-1, save_dir=save_dir)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=8,
+    val_dataset = Dataset(anno_rpath=anno_rpath,
+                          splits=['validation'],
+                          video_rpath=video_rpath,
+                          mode=mode,
+                          transforms=test_transforms,
+                          low_memory=low_memory,
+                          save_dir=save_dir)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
     dataloaders = {'train': dataloader, 'val': val_dataloader}
@@ -58,8 +73,8 @@ def run(anno_rpath, video_rpath, max_steps=64e3, mode='rgb', batch_size=1,
         # Iterate over data.
         for data in dataloaders[phase]:
             # get the inputs
-            inputs, labels, name = data
-            if os.path.exists(os.path.join(save_dir, name[0] + '.npy')):
+            inputs, labels, vid_dir, vidid = data
+            if os.path.exists(os.path.join(save_dir, vid_dir, vidid + '.npy')):
                 continue
 
             b, c, t, h, w = inputs.shape
@@ -70,19 +85,20 @@ def run(anno_rpath, video_rpath, max_steps=64e3, mode='rgb', batch_size=1,
                     start = max(1, start - 48)
                     ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda(), volatile=True)
                     features.append(i3d.extract_features(ip).squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
-                np.save(os.path.join(save_dir, name[0]), np.concatenate(features, axis=0))
+                np.save(os.path.join(save_dir, vid_dir, vidid + '.npy'), np.concatenate(features, axis=0))
             else:
                 # wrap them in Variable
                 inputs = Variable(inputs.cuda(), volatile=True)
                 features = i3d.extract_features(inputs)
-                np.save(os.path.join(save_dir, name[0]), features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
+                np.save(os.path.join(save_dir, vid_dir, vidid + '.npy'), features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-anno_rpath', type=str, help='the root path of annotations')
-    parser.add_argument('-video_rpath', type=str, help='the root path of videos')
-    parser.add_argument('-save_model', type=str)
+    parser.add_argument('-anno_rpath', type=str, required=True, help='the root path of annotations')
+    parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
+    parser.add_argument('-load_model', type=str)
+    parser.add_argument('-save_dirs', type=str)
 
     args = parser.parse_args()
 

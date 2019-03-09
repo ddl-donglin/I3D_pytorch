@@ -9,7 +9,7 @@ from torch.autograd import Variable
 from torchvision import transforms
 
 import videotransforms
-from vidor_dataset import VidorPytorch as Dataset
+from vidor_dataset import VidorPytorchTrain as Dataset
 from pytorch_i3d import InceptionI3d
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"

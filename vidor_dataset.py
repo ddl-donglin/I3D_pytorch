@@ -91,7 +91,7 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
     return vidor_dataset_list
 
 
-class VidorPytorch(data_utl.Dataset):
+class VidorPytorchTrain(data_utl.Dataset):
 
     def __init__(self, anno_rpath, splits, video_rpath, mode, task='action', transforms=None, low_memory=True):
         self.data = make_vidor_dataset(anno_rpath, video_rpath, splits, task, low_memory)
@@ -121,6 +121,43 @@ class VidorPytorch(data_utl.Dataset):
         imgs = self.transforms(imgs)
 
         return video_to_tensor(imgs), torch.from_numpy(label)
+
+    def __len__(self):
+        return len(self.data)
+
+
+class VidorPytorchExtract(data_utl.Dataset):
+    def __init__(self, anno_rpath, save_dir, splits, video_rpath, mode, task='action', transforms=None, low_memory=True):
+        self.data = make_vidor_dataset(anno_rpath, video_rpath, splits, task, low_memory)
+        self.splits = splits
+        self.transforms = transforms
+        self.mode = mode
+        self.save_dir = save_dir
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, target) where target is class_index of the target class.
+        """
+
+        video_path, label, start_f, end_f = self.data[index]
+        vid_paths = video_path.split('/')
+
+        if os.path.exists(os.path.join(self.save_dir, vid_paths[-2], vid_paths[-1][:-4] + '.npy')):
+            return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
+
+        if self.mode == 'rgb':
+            imgs = load_rgb_frames(video_path, start_f, end_f)
+        else:
+            # imgs = load_flow_frames(self.root, vid, start_f, 64)
+            print('not supported')
+
+        imgs = self.transforms(imgs)
+
+        return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
 
     def __len__(self):
         return len(self.data)

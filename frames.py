@@ -48,15 +48,15 @@ def extract_frames(video_file, num_frames=8):
 
 
 def extract_all_frames(video_file, image_dir):
-    try:
-        # os.makedirs(os.path.join(os.getcwd(), 'frames/' + video_file[:-4]))
-        os.makedirs(image_dir)
-    except OSError:
-        pass
+    if os.path.exists(image_dir):
+        try:
+            # os.makedirs(os.path.join(os.getcwd(), 'frames/' + video_file[:-4]))
+            os.makedirs(image_dir)
+        except OSError:
+            pass
 
-    # extract_frame_path = os.getcwd() + '/frames/' + video_file[:-4]
-    os.system('ffmpeg -i ' + video_file + ' ' + image_dir + '/%4d.jpg')
-    return image_dir
+        # extract_frame_path = os.getcwd() + '/frames/' + video_file[:-4]
+        os.system('ffmpeg -i ' + video_file + ' ' + image_dir + '/%4d.jpg')
 
 
 def load_frames(frame_paths, num_frames=8):

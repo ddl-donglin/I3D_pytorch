@@ -9,33 +9,38 @@ from torch.autograd import Variable
 from torchvision import transforms
 
 import videotransforms
-from charades_dataset import Charades as Dataset
+from vidor_dataset import VidorPytorch as Dataset
 from pytorch_i3d import InceptionI3d
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3'
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-mode', type=str, help='rgb or flow')
-parser.add_argument('-save_model', type=str)
-parser.add_argument('-root', type=str)
 
-args = parser.parse_args()
-
-
-def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Charades_v1_rgb/Charades_v1_rgb',
-        train_split='data/charades.json',
-        batch_size=8 * 5, save_model='test_model'):
+def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='action',
+        batch_size=8 * 5, save_model='test_model', low_memory=True):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    dataset = Dataset(train_split, 'training', root, mode, train_transforms)
+    dataset = Dataset(anno_rpath=anno_rpath,
+                      splits=['training'],
+                      video_rpath=video_rpath,
+                      mode=mode,
+                      task=task,
+                      transforms=train_transforms,
+                      low_memory=low_memory)
+
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                              pin_memory=True)
 
-    val_dataset = Dataset(train_split, 'testing', root, mode, test_transforms)
+    val_dataset = Dataset(anno_rpath=anno_rpath,
+                          splits=['validation'],
+                          video_rpath=video_rpath,
+                          mode=mode,
+                          task=task,
+                          transforms=test_transforms,
+                          low_memory=low_memory)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
@@ -121,14 +126,18 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='/home/daivd/Downloads/Cha
                         # save model
                         torch.save(i3d.module.state_dict(), save_model + str(steps).zfill(6) + '.pt')
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.
-                if phase == 'val':
-                    print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
-                                                                                         tot_cls_loss / num_iter, (
-                                                                                                 tot_loss * num_steps_per_update) / num_iter))
+            if phase == 'val':
+                print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
+                                                                                     tot_cls_loss / num_iter, (
+                                                                                             tot_loss * num_steps_per_update) / num_iter))
 
 
 if __name__ == '__main__':
-    # need to add argparse
-    # print(args.mode, args.root, args.save_model)
-    # run(mode=args.mode, root=args.root, save_model=args.save_model)
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-anno_rpath', type=str, help='the root path of annotations')
+    parser.add_argument('-video_rpath', type=str, help='the root path of videos')
+    parser.add_argument('-save_model', type=str)
+
+    args = parser.parse_args()
+
+    run(args.anno_rpath, args.video_rpath)

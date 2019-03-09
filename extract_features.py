@@ -23,8 +23,8 @@ args = parser.parse_args()
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 
-def run(max_steps=64e3, mode='rgb', root='/ssd2/charades/Charades_v1_rgb', split='charades/charades.json', batch_size=1,
-        load_model='', save_dir=''):
+def run(anno_rpath, video_rpath, max_steps=64e3, mode='rgb', batch_size=1,
+        load_model='models/rgb_charades.pt', save_dir='output/features/'):
     # setup dataset
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
@@ -79,5 +79,11 @@ def run(max_steps=64e3, mode='rgb', root='/ssd2/charades/Charades_v1_rgb', split
 
 
 if __name__ == '__main__':
-    # need to add argparse
-    run(mode=args.mode, root=args.root, load_model=args.load_model, save_dir=args.save_dir)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-anno_rpath', type=str, help='the root path of annotations')
+    parser.add_argument('-video_rpath', type=str, help='the root path of videos')
+    parser.add_argument('-save_model', type=str)
+
+    args = parser.parse_args()
+
+    run(args.anno_rpath, args.video_rpath)

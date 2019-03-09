@@ -134,9 +134,9 @@ def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-anno_rpath', type=str, help='the root path of annotations')
-    parser.add_argument('-video_rpath', type=str, help='the root path of videos')
-    parser.add_argument('-save_model', type=str)
+    parser.add_argument('-anno_rpath', type=str, required=True, help='the root path of annotations')
+    parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
+    parser.add_argument('-save_model', type=str, help='the path of save model')
 
     args = parser.parse_args()
 

@@ -1,16 +1,13 @@
-import json
 import os
 import os.path
-from collections import defaultdict
-import random
 
 import cv2
 import numpy as np
 import torch
 import torch.utils.data as data_utl
-from tqdm import tqdm
-from frames import extract_all_frames
+
 from dataset.vidor import VidOR
+from frames import extract_all_frames
 
 
 def video_to_tensor(pic):
@@ -27,7 +24,8 @@ def video_to_tensor(pic):
 
 
 def load_rgb_frames(video_path, begin, end):
-    image_dir = 'data/frames/'
+    video_path_splits = video_path.split('/')
+    image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
     frames = []
     extract_all_frames(video_path, image_dir)
 

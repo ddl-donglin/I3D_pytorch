@@ -52,8 +52,7 @@ def extract_all_frames(video_file, image_dir):
         # os.makedirs(os.path.join(os.getcwd(), 'frames/' + video_file[:-4]))
         os.makedirs(image_dir)
     except OSError:
-        shutil.rmtree(image_dir)
-        os.makedirs(image_dir)
+        pass
 
     # extract_frame_path = os.getcwd() + '/frames/' + video_file[:-4]
     os.system('ffmpeg -i ' + video_file + ' ' + image_dir + '/%4d.jpg')

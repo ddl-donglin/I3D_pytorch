@@ -81,15 +81,18 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
         ]
 
         for each_split in splits:
-            for ind in vidor_dataset.get_index(each_split):
+            print('Preparing: ', each_split)
+            get_index_list = vidor_dataset.get_index(each_split)
+            index_list_len = len(get_index_list)
+            for ind_idx, ind in enumerate(get_index_list):
+                if ind_idx % 50 == 0:
+                    print("Current progress： {}/{}".format(ind_idx, index_list_len))
                 for each_ins in vidor_dataset.get_action_insts(ind):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
                     label = np.full((1, end_f - start_f + 1), actions.index(each_ins['category']))
                     # print(video_path)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
-
-                    break
 
     return vidor_dataset_list
 

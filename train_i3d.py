@@ -126,10 +126,12 @@ def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='
                         # save model
                         torch.save(i3d.module.state_dict(), save_model + str(steps).zfill(6) + '.pt')
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.
-            if phase == 'val':
+            if phase == 'val' and num_iter > 0:
                 print('{} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f}'.format(phase, tot_loc_loss / num_iter,
                                                                                      tot_cls_loss / num_iter, (
                                                                                              tot_loss * num_steps_per_update) / num_iter))
+            else:
+                print('Pay attention plz! num_iter = ', num_iter)
 
 
 if __name__ == '__main__':

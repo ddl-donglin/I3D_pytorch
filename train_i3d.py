@@ -83,13 +83,13 @@ def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='
             num_iter = 0
             optimizer.zero_grad()
 
-            print(dataloaders[phase])
+            # print(dataloaders[phase])
             # Iterate over data.
             for data in dataloaders[phase]:
                 num_iter += 1
                 # get the inputs
                 inputs, labels = data
-                print(inputs, labels)
+                # print(inputs, labels)
 
                 # wrap them in Variable
                 inputs = Variable(inputs.cuda())

@@ -48,7 +48,7 @@ def extract_frames(video_file, num_frames=8):
 
 
 def extract_all_frames(video_file, image_dir):
-    if os.path.exists(image_dir):
+    if not os.path.exists(image_dir):
         try:
             # os.makedirs(os.path.join(os.getcwd(), 'frames/' + video_file[:-4]))
             os.makedirs(image_dir)

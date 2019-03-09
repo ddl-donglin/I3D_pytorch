@@ -27,7 +27,7 @@ def video_to_tensor(pic):
 
 
 def load_rgb_frames(video_path, begin, end):
-    image_dir = 'data/frames'
+    image_dir = 'data/frames/'
     frames = []
     extract_all_frames(video_path, image_dir)
 

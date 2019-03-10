@@ -80,7 +80,8 @@ def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,
         for data in dataloaders[phase]:
             # get the inputs
             inputs, labels, vid_dir, vidid = data
-            if os.path.exists(os.path.join(save_dir, vid_dir, vidid + '.npy')):
+            npy_path = os.path.join(save_dir, str(vid_dir), str(vidid) + '.npy')
+            if os.path.exists(npy_path):
                 continue
 
             b, c, t, h, w = inputs.shape
@@ -91,12 +92,12 @@ def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,
                     start = max(1, start - 48)
                     ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda(), volatile=True)
                     features.append(i3d.extract_features(ip).squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
-                np.save(os.path.join(save_dir, vid_dir, vidid + '.npy'), np.concatenate(features, axis=0))
+                np.save(npy_path, np.concatenate(features, axis=0))
             else:
                 # wrap them in Variable
                 inputs = Variable(inputs.cuda(), volatile=True)
                 features = i3d.extract_features(inputs)
-                np.save(os.path.join(save_dir, vid_dir, vidid + '.npy'), features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
+                np.save(npy_path, features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
 
 
 if __name__ == '__main__':

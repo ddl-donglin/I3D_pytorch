@@ -65,6 +65,8 @@ def extract_all_frames(video_file, image_dir):
             print(open_cv_frames, frame_count, 'Deleting: ', image_dir)
             extract_frame_flag = True
             shutil.rmtree(image_dir)
+        else:
+            print(video_file, "frames are correct!")
     else:
         extract_frame_flag = True
 

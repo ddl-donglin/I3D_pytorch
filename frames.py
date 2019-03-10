@@ -48,14 +48,31 @@ def extract_frames(video_file, num_frames=8):
 
 
 def extract_all_frames(video_file, image_dir):
-    if not os.path.exists(image_dir):
+    extract_frame_flag = False
+    if os.path.exists(image_dir):
+        # check whether the frames right
+        video_cap = cv2.VideoCapture(video_file)
+
+        frame_count = 0
+        while True:
+            ret, frame = video_cap.read()
+            if ret is False:
+                break
+            frame_count += 1
+
+        open_cv_frames = len([name for name in os.listdir(image_dir) if os.path.isfile(os.path.join(image_dir, name))])
+        if abs(open_cv_frames - frame_count) > 1:
+            print(open_cv_frames, frame_count, 'Deleting: ', image_dir)
+            extract_frame_flag = True
+            shutil.rmtree(image_dir)
+    else:
+        extract_frame_flag = True
+
+    if extract_frame_flag:
         try:
-            # os.makedirs(os.path.join(os.getcwd(), 'frames/' + video_file[:-4]))
             os.makedirs(image_dir)
         except OSError:
             pass
-
-        # extract_frame_path = os.getcwd() + '/frames/' + video_file[:-4]
         os.system('ffmpeg -i ' + video_file + ' ' + image_dir + '/%4d.jpg')
 
 
@@ -85,4 +102,4 @@ if __name__ == '__main__':
     #     for each_file in files:
     #         print(extract_frames(each_file))
 
-    extract_all_frames('/home/daivd/PycharmProjects/vidor/val_vids/0004/11566980553.mp4', 'data/frames')
+    extract_all_frames('/home/daivd/PycharmProjects/vidor/val_vids/0004/11566980553.mp4', 'data/frames/11566980553')

@@ -30,6 +30,12 @@ def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,
                                            videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
+    if not os.path.exists(save_dir):
+        try:
+            os.makedirs(save_dir)
+        except OSError:
+            pass
+
     dataset = Dataset(anno_rpath=anno_rpath,
                       splits=['training'],
                       video_rpath=video_rpath,

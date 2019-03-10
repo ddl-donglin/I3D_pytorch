@@ -180,7 +180,7 @@ class VidorPytorchExtract(data_utl.Dataset):
 
 
 if __name__ == '__main__':
-    base_path = '/home/daivd/PycharmProjects/vidor/'
+    base_path = '/storage/dldi/PyProjects/vidor/'
     anno_rpath = base_path + 'annotation'
     # splits = ['training', 'validation']
     splits = ['validation']

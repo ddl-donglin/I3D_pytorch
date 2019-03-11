@@ -80,7 +80,7 @@ def run(anno_rpath, video_rpath, mode='rgb', batch_size=1,
         for data in dataloaders[phase]:
             # get the inputs
             inputs, labels, vid_dir, vidid = data
-            npy_path = os.path.join(save_dir, vid_dir, vidid + '.npy')
+            npy_path = os.path.join(save_dir, vid_dir[0], vidid[0] + '.npy')
             if os.path.exists(npy_path):
                 continue
 

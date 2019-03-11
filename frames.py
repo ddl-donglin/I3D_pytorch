@@ -126,11 +126,11 @@ def parallel_extract_frames(video_root_dir, img_root_dir):
 if __name__ == '__main__':
     gpu_path = '/storage/dldi/PyProjects/vidor/train_vids'
     local_path = '/home/daivd/PycharmProjects/vidor/train_vids'
-    # for root, dirs, files in os.walk(gpu_path):
-    #     for each_idx, each_file in enumerate(files):
-    #         print('=' * 20, (each_idx, len(files)), '=' * 20)
-    #         each_vid_path = os.path.join(root, each_file)
-    #         video_path_splits = each_vid_path.split('/')
-    #         image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
-    #         extract_all_frames(each_vid_path, image_dir)
-    parallel_extract_frames(gpu_path, 'data/frames')
+    for root, dirs, files in os.walk(gpu_path):
+        for each_idx, each_file in enumerate(files):
+            print('=' * 20, (each_idx, len(files)), '=' * 20)
+            each_vid_path = os.path.join(root, each_file)
+            video_path_splits = each_vid_path.split('/')
+            image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
+            extract_all_frames(each_vid_path, image_dir)
+    # parallel_extract_frames(gpu_path, 'data/frames')

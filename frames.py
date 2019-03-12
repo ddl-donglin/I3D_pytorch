@@ -14,6 +14,9 @@ sudo apt-get update
 sudo apt-get install ffmpeg
 """
 
+local_ffmpeg_path = '/home/daivd/PycharmProjects/ffmpeg-3.3.4/bin-linux/ffmpeg'
+gpu_ffmpeg_path = '/storage/dldi/PyProjects/ffmpeg-3.3.4/bin-linux/ffmpeg'
+
 
 def extract_frames(video_file, num_frames=8):
     try:
@@ -75,7 +78,7 @@ def extract_all_frames(video_file, image_dir):
             os.makedirs(image_dir)
         except OSError:
             pass
-        os.system('ffmpeg -i ' + video_file + ' ' + image_dir + '/%4d.jpg')
+        os.system(gpu_ffmpeg_path + ' -i ' + video_file + ' ' + image_dir + '/%4d.jpg')
 
 
 def load_frames(frame_paths, num_frames=8):
@@ -108,6 +111,11 @@ def parallel_extract_frames(video_root_dir, img_root_dir):
             # print(each_vid_frame_dir)
             img_path = os.path.join(img_root_dir, each_vid_root_dir, each_vid_frame_dir)
 
+            try:
+                os.makedirs(os.path.join(img_root_dir, each_vid_root_dir))
+            except OSError:
+                pass
+
             if each_vid_frame_dir not in os.listdir(os.path.join(img_root_dir, each_vid_root_dir)):
                 try:
                     print("=" * 20, 'Mkdir: ', img_path)
@@ -126,11 +134,11 @@ def parallel_extract_frames(video_root_dir, img_root_dir):
 if __name__ == '__main__':
     gpu_path = '/storage/dldi/PyProjects/vidor/train_vids'
     local_path = '/home/daivd/PycharmProjects/vidor/train_vids'
-    for root, dirs, files in os.walk(gpu_path):
-        for each_idx, each_file in enumerate(files):
-            print('=' * 20, (each_idx, len(files)), '=' * 20)
-            each_vid_path = os.path.join(root, each_file)
-            video_path_splits = each_vid_path.split('/')
-            image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
-            extract_all_frames(each_vid_path, image_dir)
-    # parallel_extract_frames(gpu_path, 'data/frames')
+    # for root, dirs, files in os.walk(local_path):
+    #     for each_idx, each_file in enumerate(files):
+    #         print('=' * 20, (each_idx, len(files)), '=' * 20)
+    #         each_vid_path = os.path.join(root, each_file)
+    #         video_path_splits = each_vid_path.split('/')
+    #         image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
+    #         extract_all_frames(each_vid_path, image_dir)
+    parallel_extract_frames(gpu_path, 'data/frames')

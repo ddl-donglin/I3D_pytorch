@@ -16,8 +16,9 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3'
 
 
-def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='action',
-        batch_size=8 * 5, save_model='test_model', low_memory=True):
+def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
+        init_lr=0.1, max_steps=64e3, mode='rgb', task='action',
+        batch_size=8 * 5, save_model='vidor_model', low_memory=True):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
@@ -28,6 +29,7 @@ def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='
                       video_rpath=video_rpath,
                       mode=mode,
                       task=task,
+                      frames_rpath=frames_rpath,
                       transforms=train_transforms,
                       low_memory=low_memory)
 
@@ -38,6 +40,7 @@ def run(anno_rpath, video_rpath, init_lr=0.1, max_steps=64e3, mode='rgb', task='
                           splits=['validation'],
                           video_rpath=video_rpath,
                           mode=mode,
+                          frames_rpath=frames_rpath,
                           task=task,
                           transforms=test_transforms,
                           low_memory=low_memory)

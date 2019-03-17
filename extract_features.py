@@ -126,6 +126,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # CUDA_VISIBLE_DEVICES = 1
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     run(args.anno_rpath, args.video_rpath,

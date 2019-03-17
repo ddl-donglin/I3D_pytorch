@@ -53,6 +53,8 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
                 img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
             img = (img / 255.) * 2 - 1
             frames.append(img)
+        else:
+            frames.append(frames[-1])
     return np.asarray(frames, dtype=np.float32)
 
 

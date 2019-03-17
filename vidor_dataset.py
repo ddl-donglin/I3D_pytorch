@@ -56,9 +56,9 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
         else:
             if len(frames) >= 1:
                 frames.append(frames[-1])
-        # final relength the frames list
-        for miss_frame in range(end - begin - len(frames)):
-            frames.insert(0, frames[0])
+    # final relength the frames list
+    for miss_frame in range(end - begin - len(frames)):
+        frames.insert(0, frames[0])
 
     return np.asarray(frames, dtype=np.float32)
 

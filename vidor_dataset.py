@@ -43,7 +43,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
         extract_all_frames(video_path, image_dir_path)
 
     for i in range(begin, end):
-        img_path = os.path.join(image_dir_path, str(i).zfill(4) + '.jpg')
+        img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
         if os.path.exists(img_path):
             img = cv2.imread(img_path)[:, :, [2, 1, 0]]
             w, h, c = img.shape

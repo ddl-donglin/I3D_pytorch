@@ -92,7 +92,6 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                 num_iter += 1
                 # get the inputs
                 inputs, labels = data
-                # print(inputs, labels)
 
                 # wrap them in Variable
                 inputs = Variable(inputs.cuda())

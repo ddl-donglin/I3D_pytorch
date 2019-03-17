@@ -139,7 +139,10 @@ class VidorPytorchTrain(data_utl.Dataset):
         video_path, label, start_f, end_f = self.data[index]
 
         if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path, self.frames_rpath, start_f, end_f)
+            imgs = load_rgb_frames(video_path=video_path,
+                                   image_dir=self.frames_rpath,
+                                   begin=start_f,
+                                   end=end_f)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
@@ -215,7 +218,12 @@ if __name__ == '__main__':
     low_memory = True
     batch_size = 1
 
-    run_on_gpu = True
+    train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
+                                           videotransforms.RandomHorizontalFlip()])
+
+    task = 'action'
+
+    run_on_gpu = False
 
     if run_on_gpu:
         anno_rpath = gpu_anno_rpath
@@ -224,21 +232,21 @@ if __name__ == '__main__':
         anno_rpath = local_anno_rpath
         video_rpath = local_video_rpath
 
-    test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
+    dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
+                                splits=['training'],
+                                video_rpath=video_rpath,
+                                mode=mode,
+                                task=task,
+                                frames_rpath=frames_rpath,
+                                transforms=train_transforms,
+                                low_memory=low_memory)
 
-    val_dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
-                                      splits=['validation'],
-                                      video_rpath=video_rpath,
-                                      frames_rpath=frames_rpath,
-                                      mode=mode,
-                                      transforms=test_transforms,
-                                      low_memory=low_memory,
-                                      save_dir=save_dir)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
-                                                 pin_memory=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                             pin_memory=True)
 
-    for data in val_dataloader:
+    for data in dataloader:
         # get the inputs
-        inputs, labels, vid_dir, vidid = data
-
+        inputs, labels = data
+        print(inputs)
+        print(labels)
         break

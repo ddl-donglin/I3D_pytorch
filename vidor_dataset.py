@@ -113,8 +113,9 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
 
 class VidorPytorchTrain(data_utl.Dataset):
 
-    def __init__(self, anno_rpath, splits, video_rpath, frames_rpath, mode, task='action', transforms=None,
-                 low_memory=True):
+    def __init__(self, anno_rpath, splits, video_rpath,
+                 frames_rpath, mode, task='action',
+                 transforms=None, low_memory=True):
         self.data = make_vidor_dataset(
             anno_rpath=anno_rpath,
             splits=splits,
@@ -211,6 +212,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-where', type=str, required=True)
+    parser.add_argument('-split', type=str, required=True)
     args = parser.parse_args()
 
     local_anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
@@ -226,6 +228,8 @@ if __name__ == '__main__':
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
 
+    test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
+
     task = 'action'
 
     if args.where == 'gpu':
@@ -235,17 +239,31 @@ if __name__ == '__main__':
         anno_rpath = local_anno_rpath
         video_rpath = local_video_rpath
 
-    dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
-                                splits=['training'],
-                                video_rpath=video_rpath,
-                                mode=mode,
-                                task=task,
-                                frames_rpath=frames_rpath,
-                                transforms=train_transforms,
-                                low_memory=low_memory)
+    if args.split == 'train':
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
-                                             pin_memory=True)
+        dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
+                                    splits=['training'],
+                                    video_rpath=video_rpath,
+                                    mode=mode,
+                                    task=task,
+                                    frames_rpath=frames_rpath,
+                                    transforms=train_transforms,
+                                    low_memory=low_memory)
+
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                                 pin_memory=True)
+
+    else:
+        val_dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
+                                        splits=['validation'],
+                                        video_rpath=video_rpath,
+                                        mode=mode,
+                                        frames_rpath=frames_rpath,
+                                        task=task,
+                                        transforms=test_transforms,
+                                        low_memory=low_memory)
+        dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                                 pin_memory=True)
 
     for data in dataloader:
         # get the inputs

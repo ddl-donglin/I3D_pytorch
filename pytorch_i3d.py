@@ -333,7 +333,6 @@ class InceptionI3d(nn.Module):
 
 
 if __name__ == '__main__':
-
     load_model = 'models/rgb_charades.pt'
 
     i3d = InceptionI3d(400, in_channels=3)

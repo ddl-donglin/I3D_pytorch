@@ -103,7 +103,6 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
                     label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
-                    print(label)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
                 pbar.update(1)
 

@@ -330,3 +330,17 @@ class InceptionI3d(nn.Module):
             if end_point in self.end_points:
                 x = self._modules[end_point](x)
         return self.avg_pool(x)
+
+
+if __name__ == '__main__':
+
+    load_model = 'models/rgb_charades.pt'
+
+    i3d = InceptionI3d(400, in_channels=3)
+    i3d.replace_logits(157)
+    i3d.load_state_dict(torch.load(load_model))
+    i3d.cuda()
+
+    i3d.train(False)  # Set model to evaluate mode
+
+    print("Everything is ok!")

@@ -37,6 +37,10 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     frames = []
     video_path_splits = video_path.split('/')
     image_dir_path = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
+    print("\n\nwhy is there a path bug?")
+    print(video_path_splits)
+    print(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
+    print(image_dir_path)
 
     if extract_frames:
         # Be careful! This step will take a long time!
@@ -245,9 +249,6 @@ if __name__ == '__main__':
                           save_dir=save_dir)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
-
-    dataloaders = {'train': dataloader, 'val': val_dataloader}
-    datasets = {'train': dataset, 'val': val_dataset}
 
     for data in dataloader:
         # get the inputs

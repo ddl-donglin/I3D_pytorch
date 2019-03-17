@@ -41,21 +41,23 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     if extract_frames:
         # Be careful! This step will take a long time!
         extract_all_frames(video_path, image_dir_path)
-    else:
-        # This img dir is not same with extract_frames function above!
-        # If u need 2 use this, need 2 modify!
-        # image_dir = 'data/Vidor_rgb/JPEGImages/'
-        print("Use {} directly!".format(image_dir_path))
+    # else:
+    #     # This img dir is not same with extract_frames function above!
+    #     # If u need 2 use this, need 2 modify!
+    #     # image_dir = 'data/Vidor_rgb/JPEGImages/'
+    #     print("Use {} directly!".format(image_dir_path))
 
     for i in range(begin, end):
-        img = cv2.imread(os.path.join(image_dir_path, str(i).zfill(4) + '.jpg'))[:, :, [2, 1, 0]]
-        w, h, c = img.shape
-        if w < 226 or h < 226:
-            d = 226. - min(w, h)
-            sc = 1 + d / min(w, h)
-            img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
-        img = (img / 255.) * 2 - 1
-        frames.append(img)
+        img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
+        if os.path.exists(img_path):
+            img = cv2.imread(img_path)[:, :, [2, 1, 0]]
+            w, h, c = img.shape
+            if w < 226 or h < 226:
+                d = 226. - min(w, h)
+                sc = 1 + d / min(w, h)
+                img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
+            img = (img / 255.) * 2 - 1
+            frames.append(img)
     return np.asarray(frames, dtype=np.float32)
 
 
@@ -198,14 +200,18 @@ if __name__ == '__main__':
     import videotransforms
     from torchvision import transforms
 
-    anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
-    video_rpath = '/home/daivd/PycharmProjects/vidor/train_vids'
+    local_anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
+    local_video_rpath = '/home/daivd/PycharmProjects/vidor/train_vids'
+    gpu_anno_rpath = '/storage/dldi/PyProjects/vidor/annotation'
+    gpu_video_rpath = '/storage/dldi/PyProjects/vidor/train_vids'
     frames_rpath = 'data/Vidor_rgb/JPEGImages/'
     mode = 'rgb'
     save_dir = 'output/features/'
     low_memory = True
     batch_size = 1
 
+    anno_rpath = gpu_anno_rpath
+    video_rpath = gpu_video_rpath
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
 

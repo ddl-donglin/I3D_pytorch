@@ -40,13 +40,23 @@ This relied on having the optical flow and RGB frames extracted and saved as ima
 [vidor_dataset.py](vidor_dataset.py) script <b>VidorPytorchTrain Class</b>
 contains the code to load charades video segments for training.
 
+E.g.
+```bash
+python train_i3d.py -anno_rpath /storage/dldi/PyProjects/vidor/annotation -video_rpath /storage/dldi/PyProjects/vidor/train_vids
+```
+
 This relied on having the optical flow and RGB frames extracted and saved as images on dist.
 [charades_dataset.py](charades_dataset.py) contains the code to load charades video segments for training.
 
 ## Feature Extraction
 [extract_features.py](extract_features.py) 
 contains the code to load a pre-trained I3D model and extract the features 
-and save the features as numpy arrays. 
+and save the features as numpy arrays.
+
+E.g.
+```bash
+python extract_features.py -anno_rpath /storage/dldi/PyProjects/vidor/annotation -video_rpath /storage/dldi/PyProjects/vidor/train_vids
+```
 The [vidor_dataset.py](vidor_dataset.py) script <b>VidorPytorchExtract Class</b> 
 loads an entire video to 
 extract per-segment features.

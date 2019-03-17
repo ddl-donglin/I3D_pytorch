@@ -1,3 +1,4 @@
+import ast
 import os
 
 import argparse
@@ -110,8 +111,8 @@ if __name__ == '__main__':
     parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
     parser.add_argument('-frame_rpath', type=str, help='the root path of frame')
     parser.add_argument('-gpu', type=str, default="0", help='gpu_id')
-    parser.add_argument('-train_split', type=bool, default=True, help='train_split')
-    parser.add_argument('-val_split', type=bool, default=True, help='val_split')
+    parser.add_argument('-train_split', type=ast.literal_eval, default=True, help='train_split')
+    parser.add_argument('-val_split', type=ast.literal_eval, default=True, help='val_split')
     parser.add_argument('-load_model', type=str)
     parser.add_argument('-save_dirs', type=str)
 

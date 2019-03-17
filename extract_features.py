@@ -13,7 +13,8 @@ from vidor_dataset import VidorPytorchExtract as Dataset
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
-def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
+def run(anno_rpath, video_rpath, train_split=True, val_split=True,
+        frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
         load_model='models/rgb_charades.pt', save_dir='output/features/', low_memory=True):
 
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -26,31 +27,42 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/', mode
         except OSError:
             pass
 
-    dataset = Dataset(anno_rpath=anno_rpath,
-                      splits=['training'],
-                      video_rpath=video_rpath,
-                      frames_rpath=frames_rpath,
-                      mode=mode,
-                      transforms=train_transforms,
-                      low_memory=low_memory,
-                      save_dir=save_dir)
+    dataloaders = dict()
+    datasets = dict()
+    phases = list()
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
-                                             pin_memory=True)
-
-    val_dataset = Dataset(anno_rpath=anno_rpath,
-                          splits=['validation'],
+    if train_split:
+        dataset = Dataset(anno_rpath=anno_rpath,
+                          splits=['training'],
                           video_rpath=video_rpath,
                           frames_rpath=frames_rpath,
                           mode=mode,
-                          transforms=test_transforms,
+                          transforms=train_transforms,
                           low_memory=low_memory,
                           save_dir=save_dir)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
-    dataloaders = {'train': dataloader, 'val': val_dataloader}
-    datasets = {'train': dataset, 'val': val_dataset}
+        dataloaders['train'] = dataloader
+        datasets['train'] = dataset
+        phases.append('train')
+
+    if val_split:
+        val_dataset = Dataset(anno_rpath=anno_rpath,
+                              splits=['validation'],
+                              video_rpath=video_rpath,
+                              frames_rpath=frames_rpath,
+                              mode=mode,
+                              transforms=test_transforms,
+                              low_memory=low_memory,
+                              save_dir=save_dir)
+        val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                                     pin_memory=True)
+
+        dataloaders['val'] = val_dataloader
+        datasets['val'] = val_dataset
+        phases.append('val')
 
     # setup the model
     if mode == 'flow':
@@ -61,7 +73,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/', mode
     i3d.load_state_dict(torch.load(load_model))
     i3d.cuda()
 
-    for phase in ['train', 'val']:
+    for phase in phases:
         i3d.train(False)  # Set model to evaluate mode
 
         tot_loss = 0.0
@@ -98,6 +110,8 @@ if __name__ == '__main__':
     parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
     parser.add_argument('-frame_rpath', type=str, help='the root path of frame')
     parser.add_argument('-gpu', type=str, default="0", help='gpu_id')
+    parser.add_argument('-train_split', type=bool, default=True, help='train_split')
+    parser.add_argument('-val_split', type=bool, default=True, help='val_split')
     parser.add_argument('-load_model', type=str)
     parser.add_argument('-save_dirs', type=str)
 
@@ -105,4 +119,5 @@ if __name__ == '__main__':
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-    run(args.anno_rpath, args.video_rpath, args.gpu)
+    run(args.anno_rpath, args.video_rpath,
+        train_split=args.train_split, val_split=args.val_split)

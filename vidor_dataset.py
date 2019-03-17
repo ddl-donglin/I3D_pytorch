@@ -207,6 +207,11 @@ class VidorPytorchExtract(data_utl.Dataset):
 if __name__ == '__main__':
     import videotransforms
     from torchvision import transforms
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-where', type=str, required=True)
+    args = parser.parse_args()
 
     local_anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
     local_video_rpath = '/home/daivd/PycharmProjects/vidor/train_vids'
@@ -223,9 +228,7 @@ if __name__ == '__main__':
 
     task = 'action'
 
-    run_on_gpu = False
-
-    if run_on_gpu:
+    if args.where == 'gpu':
         anno_rpath = gpu_anno_rpath
         video_rpath = gpu_video_rpath
     else:

@@ -36,10 +36,12 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     """
     frames = []
     video_path_splits = video_path.split('/')
-    image_dir_path = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
+
     print("\n\nwhy is there a path bug?")
     print(video_path_splits)
     print(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
+
+    image_dir_path = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
     print(image_dir_path)
 
     if extract_frames:

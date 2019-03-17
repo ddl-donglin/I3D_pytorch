@@ -221,18 +221,33 @@ if __name__ == '__main__':
 
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
+    test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
     dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
-                                  splits=['validation'],
-                                  video_rpath=video_rpath,
-                                  frames_rpath=frames_rpath,
-                                  mode=mode,
-                                  transforms=train_transforms,
-                                  low_memory=low_memory,
-                                  save_dir=save_dir)
+                      splits=['training'],
+                      video_rpath=video_rpath,
+                      frames_rpath=frames_rpath,
+                      mode=mode,
+                      transforms=train_transforms,
+                      low_memory=low_memory,
+                      save_dir=save_dir)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                              pin_memory=True)
+
+    val_dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
+                          splits=['validation'],
+                          video_rpath=video_rpath,
+                          frames_rpath=frames_rpath,
+                          mode=mode,
+                          transforms=test_transforms,
+                          low_memory=low_memory,
+                          save_dir=save_dir)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                                 pin_memory=True)
+
+    dataloaders = {'train': dataloader, 'val': val_dataloader}
+    datasets = {'train': dataset, 'val': val_dataset}
 
     for data in dataloader:
         # get the inputs
@@ -242,6 +257,21 @@ if __name__ == '__main__':
         print(labels)
         print(vid_dir)
         print(vidid)
+        print("+" * 20, "Training dataloader is ok!")
 
         break
+
+    for data in val_dataloader:
+        # get the inputs
+        inputs, labels, vid_dir, vidid = data
+
+        print(inputs)
+        print(labels)
+        print(vid_dir)
+        print(vidid)
+        print("+" * 20, "Validation dataloader is ok!")
+
+        break
+
+
 

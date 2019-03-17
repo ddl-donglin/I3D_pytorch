@@ -1,3 +1,4 @@
+import json
 import os
 import os.path
 
@@ -6,6 +7,7 @@ import numpy as np
 import torch
 import torch.utils.data as data_utl
 
+from tqdm import tqdm
 from dataset.vidor import VidOR
 from frames import extract_all_frames
 
@@ -23,11 +25,27 @@ def video_to_tensor(pic):
     return torch.from_numpy(pic.transpose([3, 0, 1, 2]))
 
 
-def load_rgb_frames(video_path, begin, end):
-    video_path_splits = video_path.split('/')
-    image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
+def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
+    """
+    :param video_path: if u need 2 extract frames, but b careful, this setting needs a long time!
+    :param image_dir: This is image dir, but not same with extract frames func
+    :param begin:
+    :param end:
+    :param extract_frames:
+    :return:
+    """
     frames = []
-    extract_all_frames(video_path, image_dir)
+    video_path_splits = video_path.split('/')
+    image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4])
+
+    if extract_frames:
+        # Be careful! This step will take a long time!
+        extract_all_frames(video_path, image_dir)
+    else:
+        # This img dir is not same with extract_frames function above!
+        # If u need 2 use this, need 2 modify!
+        # image_dir = 'data/Vidor_rgb/JPEGImages/
+        print("Use {} directly!".format(image_dir))
 
     for i in range(begin, end):
         img = cv2.imread(os.path.join(image_dir, str(i).zfill(4) + '.jpg'))[:, :, [2, 1, 0]]
@@ -69,41 +87,36 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
 
     vidor_dataset_list = []
     if task == 'action':
-        actions = [
-            'watch', 'bite', 'kiss', 'lick', 'smell', 'caress', 'knock', 'pat',
-            'point_to', 'squeeze', 'hold', 'press', 'touch', 'hit', 'kick',
-            'lift', 'throw', 'wave', 'carry', 'grab', 'release', 'pull',
-            'push', 'hug', 'lean_on', 'ride', 'chase', 'get_on', 'get_off',
-            'hold_hand_of', 'shake_hand_with', 'wave_hand_to', 'speak_to', 'shout_at', 'feed',
-            'open', 'close', 'use', 'cut', 'clean', 'drive', 'play(instrument)',
-        ]
+        with open('actions.json', 'r') as action_f:
+            actions = json.load(action_f)['actions']
 
         for each_split in splits:
             print('Preparing: ', each_split)
             get_index_list = vidor_dataset.get_index(each_split)
-            index_list_len = len(get_index_list)
-            for ind_idx, ind in enumerate(get_index_list):
-                if ind_idx % 200 == 0:
-                    print("Current progress： {}/{}".format(ind_idx, index_list_len))
+            pbar = tqdm(total=len(get_index_list))
+            for ind in get_index_list:
                 for each_ins in vidor_dataset.get_action_insts(ind):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
                     label = np.full((1, end_f - start_f + 1), actions.index(each_ins['category']))
                     # print(video_path)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
-            print("Current progress： {}/{}".format(index_list_len, index_list_len))
+                pbar.update(1)
+
+            pbar.close()
     return vidor_dataset_list
 
 
 class VidorPytorchTrain(data_utl.Dataset):
 
-    def __init__(self, anno_rpath, splits, video_rpath, mode, task='action', transforms=None, low_memory=True):
+    def __init__(self, anno_rpath, splits, video_rpath, frames_rpath, mode, task='action', transforms=None, low_memory=True):
         self.data = make_vidor_dataset(
             anno_rpath=anno_rpath,
             splits=splits,
             video_rpath=video_rpath,
             task=task,
             low_memory=low_memory)
+        self.frames_rpath = frames_rpath,
         self.splits = splits
         self.transforms = transforms
         self.mode = mode
@@ -121,7 +134,7 @@ class VidorPytorchTrain(data_utl.Dataset):
         video_path, label, start_f, end_f = self.data[index]
 
         if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path, start_f, end_f)
+            imgs = load_rgb_frames(video_path, self.frames_rpath, start_f, end_f)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
@@ -137,7 +150,7 @@ class VidorPytorchTrain(data_utl.Dataset):
 
 class VidorPytorchExtract(data_utl.Dataset):
     def __init__(self, anno_rpath, save_dir, splits,
-                 video_rpath, mode, task='action',
+                 video_rpath, frames_rpath, mode, task='action',
                  transforms=None, low_memory=True):
         self.data = make_vidor_dataset(
             anno_rpath=anno_rpath,
@@ -145,6 +158,7 @@ class VidorPytorchExtract(data_utl.Dataset):
             video_rpath=video_rpath,
             task=task,
             low_memory=low_memory)
+        self.frames_rpath = frames_rpath,
         self.splits = splits
         self.transforms = transforms
         self.mode = mode
@@ -166,7 +180,7 @@ class VidorPytorchExtract(data_utl.Dataset):
             return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
         if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path, start_f, end_f)
+            imgs = load_rgb_frames(video_path, self.frames_rpath, start_f, end_f)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
@@ -177,16 +191,3 @@ class VidorPytorchExtract(data_utl.Dataset):
 
     def __len__(self):
         return len(self.data)
-
-
-if __name__ == '__main__':
-    base_path = '/storage/dldi/PyProjects/vidor/'
-    anno_rpath = base_path + 'annotation'
-    # splits = ['training', 'validation']
-    splits = ['validation']
-    video_rpath = base_path + 'val_vids'
-    task = 'action'
-    vidor_dataset = VidOR(anno_rpath, video_rpath, splits, True)
-    print(vidor_dataset.get_video_path('4189100053'))
-    # vidor_dataset_list = make_vidor_dataset(anno_rpath, splits, video_rpath, task)
-    # print(vidor_dataset_list)

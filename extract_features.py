@@ -23,7 +23,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 
-def run(anno_rpath, video_rpath, frames_rpath, mode='rgb', batch_size=1,
+def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
         load_model='models/rgb_charades.pt', save_dir='output/features/', low_memory=True):
 
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),

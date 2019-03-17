@@ -36,7 +36,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     """
     frames = []
     video_path_splits = video_path.split('/')
-    image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4])
+    image_dir = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
 
     if extract_frames:
         # Be careful! This step will take a long time!
@@ -44,7 +44,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     else:
         # This img dir is not same with extract_frames function above!
         # If u need 2 use this, need 2 modify!
-        # image_dir = 'data/Vidor_rgb/JPEGImages/
+        # image_dir = 'data/Vidor_rgb/JPEGImages/'
         print("Use {} directly!".format(image_dir))
 
     for i in range(begin, end):

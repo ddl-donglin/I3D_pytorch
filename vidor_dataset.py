@@ -182,7 +182,6 @@ class VidorPytorchExtract(data_utl.Dataset):
                                    image_dir=self.frames_rpath,
                                    begin=start_f,
                                    end=end_f)
-            print(imgs)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')

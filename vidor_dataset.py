@@ -41,11 +41,6 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     if extract_frames:
         # Be careful! This step will take a long time!
         extract_all_frames(video_path, image_dir_path)
-    # else:
-    #     # This img dir is not same with extract_frames function above!
-    #     # If u need 2 use this, need 2 modify!
-    #     # image_dir = 'data/Vidor_rgb/JPEGImages/'
-    #     print("Use {} directly!".format(image_dir_path))
 
     for i in range(begin, end):
         img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
@@ -187,6 +182,7 @@ class VidorPytorchExtract(data_utl.Dataset):
                                    image_dir=self.frames_rpath,
                                    begin=start_f,
                                    end=end_f)
+            print(imgs)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
@@ -222,21 +218,7 @@ if __name__ == '__main__':
         anno_rpath = local_anno_rpath
         video_rpath = local_video_rpath
 
-    train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
-                                           videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
-
-    dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
-                                  splits=['training'],
-                                  video_rpath=video_rpath,
-                                  frames_rpath=frames_rpath,
-                                  mode=mode,
-                                  transforms=train_transforms,
-                                  low_memory=low_memory,
-                                  save_dir=save_dir)
-
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
-                                             pin_memory=True)
 
     val_dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
                                       splits=['validation'],
@@ -249,26 +231,8 @@ if __name__ == '__main__':
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
-    for data in dataloader:
-        # get the inputs
-        inputs, labels, vid_dir, vidid = data
-
-        print(inputs)
-        print(labels)
-        print(vid_dir)
-        print(vidid)
-        print("+" * 20, "Training dataloader is ok!")
-
-        break
-
     for data in val_dataloader:
         # get the inputs
         inputs, labels, vid_dir, vidid = data
-
-        print(inputs)
-        print(labels)
-        print(vid_dir)
-        print(vidid)
-        print("+" * 20, "Validation dataloader is ok!")
 
         break

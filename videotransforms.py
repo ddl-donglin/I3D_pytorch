@@ -66,7 +66,7 @@ class CenterCrop(object):
     def __call__(self, imgs):
         """
         Args:
-            img (PIL Image): Image to be cropped.
+            imgs (PIL Image): Image to be cropped.
         Returns:
             PIL Image: Cropped image.
         """
@@ -94,7 +94,7 @@ class RandomHorizontalFlip(object):
     def __call__(self, imgs):
         """
         Args:
-            img (seq Images): seq Images to be flipped.
+            imgs (seq Images): seq Images to be flipped.
         Returns:
             seq Images: Randomly flipped seq images.
         """

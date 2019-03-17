@@ -45,6 +45,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     for i in range(begin, end):
         img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
         if os.path.exists(img_path):
+            print("-"*10, img_path, "-"*10)
             img = cv2.imread(img_path)[:, :, [2, 1, 0]]
             w, h, c = img.shape
             if w < 226 or h < 226:

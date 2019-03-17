@@ -159,7 +159,7 @@ class VidorPytorchExtract(data_utl.Dataset):
             video_rpath=video_rpath,
             task=task,
             low_memory=low_memory)
-        self.frames_rpath = frames_rpath,
+        self.frames_rpath = frames_rpath
         self.splits = splits
         self.transforms = transforms
         self.mode = mode

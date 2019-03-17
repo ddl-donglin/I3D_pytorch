@@ -36,13 +36,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     """
     frames = []
     video_path_splits = video_path.split('/')
-
-    print("\n\nwhy is there a path bug?")
-    print(video_path_splits)
-    print(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
-
     image_dir_path = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
-    print(image_dir_path)
 
     if extract_frames:
         # Be careful! This step will take a long time!
@@ -189,7 +183,10 @@ class VidorPytorchExtract(data_utl.Dataset):
             return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
         if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path, self.frames_rpath, start_f, end_f)
+            imgs = load_rgb_frames(video_path=video_path,
+                                   image_dir=self.frames_rpath,
+                                   begin=start_f,
+                                   end=end_f)
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
@@ -230,25 +227,25 @@ if __name__ == '__main__':
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
     dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
-                      splits=['training'],
-                      video_rpath=video_rpath,
-                      frames_rpath=frames_rpath,
-                      mode=mode,
-                      transforms=train_transforms,
-                      low_memory=low_memory,
-                      save_dir=save_dir)
+                                  splits=['training'],
+                                  video_rpath=video_rpath,
+                                  frames_rpath=frames_rpath,
+                                  mode=mode,
+                                  transforms=train_transforms,
+                                  low_memory=low_memory,
+                                  save_dir=save_dir)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                              pin_memory=True)
 
     val_dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
-                          splits=['validation'],
-                          video_rpath=video_rpath,
-                          frames_rpath=frames_rpath,
-                          mode=mode,
-                          transforms=test_transforms,
-                          low_memory=low_memory,
-                          save_dir=save_dir)
+                                      splits=['validation'],
+                                      video_rpath=video_rpath,
+                                      frames_rpath=frames_rpath,
+                                      mode=mode,
+                                      transforms=test_transforms,
+                                      low_memory=low_memory,
+                                      save_dir=save_dir)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
@@ -275,6 +272,3 @@ if __name__ == '__main__':
         print("+" * 20, "Validation dataloader is ok!")
 
         break
-
-
-

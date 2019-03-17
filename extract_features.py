@@ -112,4 +112,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    run(args.anno_rpath, args.video_rpath, args.frame_rpath)
+    run(args.anno_rpath, args.video_rpath)

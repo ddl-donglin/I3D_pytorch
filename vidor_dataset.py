@@ -43,9 +43,8 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
         extract_all_frames(video_path, image_dir_path)
 
     for i in range(begin, end):
-        img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
+        img_path = os.path.join(image_dir_path, str(i).zfill(4) + '.jpg')
         if os.path.exists(img_path):
-            print("-"*10, img_path, "-"*10)
             img = cv2.imread(img_path)[:, :, [2, 1, 0]]
             w, h, c = img.shape
             if w < 226 or h < 226:
@@ -103,7 +102,7 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                 for each_ins in vidor_dataset.get_action_insts(ind):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
-                    label = np.full((1, end_f - start_f + 1), actions.index(each_ins['category']))
+                    label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
                     # print(video_path)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
                 pbar.update(1)
@@ -212,12 +211,12 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-where', type=str, required=True)
-    parser.add_argument('-split', type=str, required=True)
+    parser.add_argument('-where', type=str, default="local")
+    parser.add_argument('-split', type=str, default="test")
     args = parser.parse_args()
 
     local_anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
-    local_video_rpath = '/home/daivd/PycharmProjects/vidor/train_vids'
+    local_video_rpath = '/home/daivd/PycharmProjects/vidor/test_vids'
     gpu_anno_rpath = '/storage/dldi/PyProjects/vidor/annotation'
     gpu_video_rpath = '/storage/dldi/PyProjects/vidor/train_vids'
     frames_rpath = 'data/Vidor_rgb/JPEGImages/'
@@ -253,6 +252,15 @@ if __name__ == '__main__':
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
+
+    elif args.split == 'test':
+        imgs = load_rgb_frames(video_path='/home/daivd/PycharmProjects/vidor/test_vids/0090/2528916736.mp4',
+                               image_dir=frames_rpath,
+                               begin=60,
+                               end=70)
+        imgs = train_transforms(imgs)
+
+        print(video_to_tensor(imgs))
 
     else:
         val_dataset = VidorPytorchTrain(anno_rpath=anno_rpath,

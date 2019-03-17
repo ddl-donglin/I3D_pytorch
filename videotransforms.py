@@ -105,18 +105,3 @@ class RandomHorizontalFlip(object):
 
     def __repr__(self):
         return self.__class__.__name__ + '(p={})'.format(self.p)
-
-
-if __name__ == '__main__':
-
-    import cv2
-    img_path = 'data/frames/0090/2528916736_frames/0002.jpg'
-    img = cv2.imread(img_path)[:, :, [2, 1, 0]]
-    w, h, c = img.shape
-    if w < 226 or h < 226:
-        d = 226. - min(w, h)
-        sc = 1 + d / min(w, h)
-        img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
-    img = (img / 255.) * 2 - 1
-
-    print(img.shape)

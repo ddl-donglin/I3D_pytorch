@@ -12,19 +12,11 @@ from vidor_dataset import VidorPytorchExtract as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
-# parser = argparse.ArgumentParser()
-# parser.add_argument('-mode', type=str, help='rgb or flow')
-# parser.add_argument('-load_model', type=str)
-# parser.add_argument('-root', type=str)
-# parser.add_argument('-gpu', type=str)
-# parser.add_argument('-save_dir', type=str)
-#
-# args = parser.parse_args()
-# os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-
-def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
+def run(anno_rpath, video_rpath, assign_gpu, frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
         load_model='models/rgb_charades.pt', save_dir='output/features/', low_memory=True):
+
+    torch.cuda.set_device(assign_gpu)
 
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
@@ -107,9 +99,12 @@ if __name__ == '__main__':
     parser.add_argument('-anno_rpath', type=str, required=True, help='the root path of annotations')
     parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
     parser.add_argument('-frame_rpath', type=str, help='the root path of frame')
+    parser.add_argument('-gpu', type=str, default=0, help='gpu_id')
     parser.add_argument('-load_model', type=str)
     parser.add_argument('-save_dirs', type=str)
 
     args = parser.parse_args()
 
-    run(args.anno_rpath, args.video_rpath)
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+
+    run(args.anno_rpath, args.video_rpath, args.gpu)

@@ -210,8 +210,15 @@ if __name__ == '__main__':
     low_memory = True
     batch_size = 1
 
-    anno_rpath = gpu_anno_rpath
-    video_rpath = gpu_video_rpath
+    run_on_gpu = True
+
+    if run_on_gpu:
+        anno_rpath = gpu_anno_rpath
+        video_rpath = gpu_video_rpath
+    else:
+        anno_rpath = local_anno_rpath
+        video_rpath = local_video_rpath
+
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
 
@@ -230,4 +237,11 @@ if __name__ == '__main__':
     for data in dataloader:
         # get the inputs
         inputs, labels, vid_dir, vidid = data
+
+        print(inputs)
+        print(labels)
+        print(vid_dir)
+        print(vidid)
+
+        break
 

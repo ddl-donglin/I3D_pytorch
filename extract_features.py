@@ -85,7 +85,13 @@ def run(anno_rpath, video_rpath, train_split=True, val_split=True,
         for data in dataloaders[phase]:
             # get the inputs
             inputs, labels, vid_dir, vidid = data
-            npy_path = os.path.join(save_dir, vid_dir[0], vidid[0] + '.npy')
+            npy_save_dir = os.path.join(save_dir, vid_dir[0])
+            npy_path = os.path.join(npy_save_dir, vidid[0] + '.npy')
+
+            if not os.path.exists(npy_save_dir):
+                # create the directory
+                os.mkdir(npy_save_dir)
+
             if os.path.exists(npy_path):
                 continue
 

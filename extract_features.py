@@ -106,7 +106,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-anno_rpath', type=str, required=True, help='the root path of annotations')
     parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
-    parser.add_argument('-frame_rpath', type=str, required=True, help='the root path of frame')
+    parser.add_argument('-frame_rpath', type=str, help='the root path of frame')
     parser.add_argument('-load_model', type=str)
     parser.add_argument('-save_dirs', type=str)
 

@@ -2,6 +2,12 @@
 
 ## Overview
 
+This repo is the trunk net 4 2nd task of VidVRD: Video Relation Prediction
+
+The 1st stage project: [Video Object Detection](https://github.com/Daviddddl/FasterRCNN4VidVRDT1.git)
+
+[The Grand Challenge MM2019](http://lms.comp.nus.edu.sg/research/dataset.html) 
+
 This repository contains trained models reported in the paper "[Quo Vadis,
 Action Recognition? A New Model and the Kinetics
 Dataset](https://arxiv.org/abs/1705.07750)" by Joao Carreira and Andrew

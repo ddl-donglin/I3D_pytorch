@@ -36,19 +36,19 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     """
     frames = []
     video_path_splits = video_path.split('/')
-    image_dir = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
+    image_dir_path = os.path.join(image_dir, video_path_splits[-2], video_path_splits[-1][:-4])
 
     if extract_frames:
         # Be careful! This step will take a long time!
-        extract_all_frames(video_path, image_dir)
+        extract_all_frames(video_path, image_dir_path)
     else:
         # This img dir is not same with extract_frames function above!
         # If u need 2 use this, need 2 modify!
         # image_dir = 'data/Vidor_rgb/JPEGImages/'
-        print("Use {} directly!".format(image_dir))
+        print("Use {} directly!".format(image_dir_path))
 
     for i in range(begin, end):
-        img = cv2.imread(os.path.join(image_dir, str(i).zfill(4) + '.jpg'))[:, :, [2, 1, 0]]
+        img = cv2.imread(os.path.join(image_dir_path, str(i).zfill(4) + '.jpg'))[:, :, [2, 1, 0]]
         w, h, c = img.shape
         if w < 226 or h < 226:
             d = 226. - min(w, h)
@@ -109,7 +109,8 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
 
 class VidorPytorchTrain(data_utl.Dataset):
 
-    def __init__(self, anno_rpath, splits, video_rpath, frames_rpath, mode, task='action', transforms=None, low_memory=True):
+    def __init__(self, anno_rpath, splits, video_rpath, frames_rpath, mode, task='action', transforms=None,
+                 low_memory=True):
         self.data = make_vidor_dataset(
             anno_rpath=anno_rpath,
             splits=splits,
@@ -191,3 +192,36 @@ class VidorPytorchExtract(data_utl.Dataset):
 
     def __len__(self):
         return len(self.data)
+
+
+if __name__ == '__main__':
+    import videotransforms
+    from torchvision import transforms
+
+    anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
+    video_rpath = '/home/daivd/PycharmProjects/vidor/train_vids'
+    frames_rpath = 'data/Vidor_rgb/JPEGImages/'
+    mode = 'rgb'
+    save_dir = 'output/features/'
+    low_memory = True
+    batch_size = 1
+
+    train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
+                                           videotransforms.RandomHorizontalFlip()])
+
+    dataset = VidorPytorchExtract(anno_rpath=anno_rpath,
+                                  splits=['validation'],
+                                  video_rpath=video_rpath,
+                                  frames_rpath=frames_rpath,
+                                  mode=mode,
+                                  transforms=train_transforms,
+                                  low_memory=low_memory,
+                                  save_dir=save_dir)
+
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+                                             pin_memory=True)
+
+    for data in dataloader:
+        # get the inputs
+        inputs, labels, vid_dir, vidid = data
+

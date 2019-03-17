@@ -101,12 +101,14 @@ def run(anno_rpath, video_rpath, train_split=True, val_split=True,
                 for start in range(1, t - 56, 1600):
                     end = min(t - 1, start + 1600 + 56)
                     start = max(1, start - 48)
-                    ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda(), volatile=True)
+                    with torch.no_grad():
+                        ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda())
                     features.append(i3d.extract_features(ip).squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
                 np.save(npy_path, np.concatenate(features, axis=0))
             else:
                 # wrap them in Variable
-                inputs = Variable(inputs.cuda(), volatile=True)
+                with torch.no_grad():
+                    inputs = Variable(inputs.cuda())
                 features = i3d.extract_features(inputs)
                 np.save(npy_path, features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
 

@@ -103,7 +103,7 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
                     label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
-                    # print(video_path)
+                    print(label)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
                 pbar.update(1)
 
@@ -252,16 +252,6 @@ if __name__ == '__main__':
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
-
-    elif args.split == 'test':
-        imgs = load_rgb_frames(video_path='/home/daivd/PycharmProjects/vidor/test_vids/0090/2528916736.mp4',
-                               image_dir=frames_rpath,
-                               begin=60,
-                               end=70)
-        imgs = train_transforms(imgs)
-
-        print(video_to_tensor(imgs))
-
     else:
         val_dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
                                         splits=['validation'],

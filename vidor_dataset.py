@@ -138,8 +138,8 @@ class VidorPytorchTrain(data_utl.Dataset):
         video_path, label, start_f, end_f = self.data[index]
 
         vid_paths = video_path.split('/')
-        img_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
-        if os.path.exists(img_path):
+        img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
+        if os.path.exists(img_dir_path):
             if self.mode == 'rgb':
                 imgs = load_rgb_frames(video_path=video_path,
                                        image_dir=self.frames_rpath,
@@ -155,6 +155,7 @@ class VidorPytorchTrain(data_utl.Dataset):
             # return video_to_tensor(imgs), 0     # correct
             # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
             return video_to_tensor(imgs), torch.from_numpy(label)
+        print("Doesnt exist! {}".format(img_dir_path))
         return 0, 0
 
     def __len__(self):
@@ -192,8 +193,8 @@ class VidorPytorchExtract(data_utl.Dataset):
         if os.path.exists(os.path.join(self.save_dir, vid_paths[-2], vid_paths[-1][:-4] + '.npy')):
             return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
-        img_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
-        if os.path.exists(img_path):
+        img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
+        if os.path.exists(img_dir_path):
             if self.mode == 'rgb':
                 imgs = load_rgb_frames(video_path=video_path,
                                        image_dir=self.frames_rpath,
@@ -206,6 +207,7 @@ class VidorPytorchExtract(data_utl.Dataset):
             imgs = self.transforms(imgs)
 
             return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
+        print("Doesnt exist! {}".format(img_dir_path))
         return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
     def __len__(self):
@@ -278,4 +280,3 @@ if __name__ == '__main__':
         inputs, labels = data
         print(inputs)
         print(labels)
-        break

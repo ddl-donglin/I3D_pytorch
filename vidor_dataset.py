@@ -139,24 +139,21 @@ class VidorPytorchTrain(data_utl.Dataset):
 
         vid_paths = video_path.split('/')
         img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
-        if os.path.exists(img_dir_path):
-            if self.mode == 'rgb':
-                imgs = load_rgb_frames(video_path=video_path,
-                                       image_dir=self.frames_rpath,
-                                       begin=start_f,
-                                       end=end_f)
-            else:
-                # imgs = load_flow_frames(self.root, vid, start_f, 64)
-                print('not supported')
-            label = label[:, start_f: end_f]
+        if self.mode == 'rgb':
+            imgs = load_rgb_frames(video_path=video_path,
+                                   image_dir=self.frames_rpath,
+                                   begin=start_f,
+                                   end=end_f)
+        else:
+            # imgs = load_flow_frames(self.root, vid, start_f, 64)
+            print('not supported')
+        label = label[:, start_f: end_f]
 
-            imgs = self.transforms(imgs)
+        imgs = self.transforms(imgs)
 
-            # return video_to_tensor(imgs), 0     # correct
-            # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
-            return video_to_tensor(imgs), torch.from_numpy(label)
-        print("Doesnt exist! {}".format(img_dir_path))
-        return 0, 0
+        # return video_to_tensor(imgs), 0     # correct
+        # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
+        return video_to_tensor(imgs), torch.from_numpy(label)
 
     def __len__(self):
         return len(self.data)
@@ -207,7 +204,6 @@ class VidorPytorchExtract(data_utl.Dataset):
             imgs = self.transforms(imgs)
 
             return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
-        print("Doesnt exist! {}".format(img_dir_path))
         return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
     def __len__(self):

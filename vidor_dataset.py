@@ -147,10 +147,7 @@ class VidorPytorchTrain(data_utl.Dataset):
         else:
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
-        label = label[:, start_f: end_f]
-        if label.size < 0:
-            print(video_path, label, start_f, end_f)
-            exit(0)
+        # label = label[:, start_f: end_f]
 
         imgs = self.transforms(imgs)
 
@@ -193,21 +190,18 @@ class VidorPytorchExtract(data_utl.Dataset):
         if os.path.exists(os.path.join(self.save_dir, vid_paths[-2], vid_paths[-1][:-4] + '.npy')):
             return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
-        img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
-        if os.path.exists(img_dir_path):
-            if self.mode == 'rgb':
-                imgs = load_rgb_frames(video_path=video_path,
-                                       image_dir=self.frames_rpath,
-                                       begin=start_f,
-                                       end=end_f)
-            else:
-                # imgs = load_flow_frames(self.root, vid, start_f, 64)
-                print('not supported')
+        if self.mode == 'rgb':
+            imgs = load_rgb_frames(video_path=video_path,
+                                   image_dir=self.frames_rpath,
+                                   begin=start_f,
+                                   end=end_f)
+        else:
+            # imgs = load_flow_frames(self.root, vid, start_f, 64)
+            print('not supported')
 
-            imgs = self.transforms(imgs)
+        imgs = self.transforms(imgs)
 
-            return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
-        return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
+        return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
 
     def __len__(self):
         return len(self.data)

@@ -150,7 +150,8 @@ class VidorPytorchTrain(data_utl.Dataset):
 
         imgs = self.transforms(imgs)
 
-        return video_to_tensor(imgs), torch.from_numpy(label)
+        # return video_to_tensor(imgs), torch.from_numpy(label)
+        return video_to_tensor(imgs), 0
 
     def __len__(self):
         return len(self.data)

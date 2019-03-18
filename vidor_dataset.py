@@ -102,11 +102,7 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                 for each_ins in vidor_dataset.get_action_insts(ind):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
-                    if end_f > start_f:
-                        label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
-                    else:
-                        print("="*20, start_f, end_f, video_path)
-                        exit(0)
+                    label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
                 pbar.update(1)
 
@@ -142,21 +138,26 @@ class VidorPytorchTrain(data_utl.Dataset):
 
         video_path, label, start_f, end_f = self.data[index]
 
-        if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path=video_path,
-                                   image_dir=self.frames_rpath,
-                                   begin=start_f,
-                                   end=end_f)
+        if start_f < end_f:
+            if self.mode == 'rgb':
+                imgs = load_rgb_frames(video_path=video_path,
+                                       image_dir=self.frames_rpath,
+                                       begin=start_f,
+                                       end=end_f)
+            else:
+                # imgs = load_flow_frames(self.root, vid, start_f, 64)
+                print('not supported')
+            label = label[:, start_f: end_f]
+
+            imgs = self.transforms(imgs)
+
+            # return video_to_tensor(imgs), 0     # correct
+            # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
+            return video_to_tensor(imgs), torch.from_numpy(label)
         else:
-            # imgs = load_flow_frames(self.root, vid, start_f, 64)
-            print('not supported')
-        label = label[:, start_f: end_f]
-
-        imgs = self.transforms(imgs)
-
-        # return video_to_tensor(imgs), 0     # correct
-        # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
-        return video_to_tensor(imgs), torch.from_numpy(label)
+            print("="*10)
+            print("start_f: {}, end_f: {}, video_path: {}".format(start_f, end_f, video_path))
+            return 0, 0
 
     def __len__(self):
         return len(self.data)

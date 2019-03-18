@@ -148,6 +148,9 @@ class VidorPytorchTrain(data_utl.Dataset):
             # imgs = load_flow_frames(self.root, vid, start_f, 64)
             print('not supported')
         label = label[:, start_f: end_f]
+        if label.size() < 0:
+            print(video_path, label, start_f, end_f)
+            exit(0)
 
         imgs = self.transforms(imgs)
 

@@ -102,7 +102,11 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
                 for each_ins in vidor_dataset.get_action_insts(ind):
                     video_path = vidor_dataset.get_video_path(ind)
                     start_f, end_f = each_ins['duration']
-                    label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
+                    if end_f > start_f:
+                        label = np.full((1, end_f - start_f), actions.index(each_ins['category']))
+                    else:
+                        print("="*20, start_f, end_f, video_path)
+                        exit(0)
                     vidor_dataset_list.append((video_path, label, start_f, end_f))
                 pbar.update(1)
 
@@ -150,8 +154,9 @@ class VidorPytorchTrain(data_utl.Dataset):
 
         imgs = self.transforms(imgs)
 
-        # return video_to_tensor(imgs), torch.from_numpy(label)
-        return video_to_tensor(imgs), 0
+        # return video_to_tensor(imgs), 0     # correct
+        # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
+        return video_to_tensor(imgs), torch.from_numpy(label)
 
     def __len__(self):
         return len(self.data)

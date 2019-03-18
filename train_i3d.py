@@ -17,7 +17,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
 def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
-        init_lr=0.1, max_steps=64e3, mode='rgb', task='action',
+        init_lr=0.1, max_steps=64e3, mode='rgb', task='action', num_workers=36,
         batch_size=8 * 5, save_model='vidor_model', low_memory=True):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -33,7 +33,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                       transforms=train_transforms,
                       low_memory=low_memory)
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,
                                              pin_memory=True)
 
     val_dataset = Dataset(anno_rpath=anno_rpath,
@@ -44,7 +44,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                           task=task,
                           transforms=test_transforms,
                           low_memory=low_memory)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,
                                                  pin_memory=True)
 
     dataloaders = {'train': dataloader, 'val': val_dataloader}
@@ -140,8 +140,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-anno_rpath', type=str, required=True, help='the root path of annotations')
     parser.add_argument('-video_rpath', type=str, required=True, help='the root path of videos')
+    parser.add_argument('-num_workers', type=int, help='the num_workers')
     parser.add_argument('-save_model', type=str, help='the path of save model')
 
     args = parser.parse_args()
 
-    run(args.anno_rpath, args.video_rpath)
+    run(args.anno_rpath, args.video_rpath, num_workers=args.num_workers)

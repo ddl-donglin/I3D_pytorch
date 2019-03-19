@@ -71,7 +71,6 @@ def run(anno_rpath, video_rpath, train_split=True, val_split=True,
     else:
         i3d = InceptionI3d(400, in_channels=3)
     i3d.replace_logits(157)
-    i3d = torch.nn.DataParallel(i3d)
     i3d.load_state_dict(torch.load(load_model))
     i3d.cuda()
 

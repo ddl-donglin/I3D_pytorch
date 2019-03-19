@@ -45,7 +45,7 @@ def load_rgb_frames(video_path, image_dir, begin, end, extract_frames=False):
     for i in range(begin, end):
         img_path = os.path.join(image_dir_path, str(i).zfill(6) + '.jpg')
         if os.path.exists(img_path):
-            img = cv2.imread(img_path)[:, :, [2, 1, 0]]
+            img = cv2.imread(img_path)[:, :]
             w, h, c = img.shape
             if w < 226 or h < 226:
                 d = 226. - min(w, h)
@@ -113,7 +113,7 @@ def make_vidor_dataset(anno_rpath, splits, video_rpath, task, low_memory=True):
 class VidorPytorchTrain(data_utl.Dataset):
 
     def __init__(self, anno_rpath, splits, video_rpath,
-                 frames_rpath, mode, task='action',
+                 frames_rpath, mode, save_dir, task='action',
                  transforms=None, low_memory=True):
         self.data = make_vidor_dataset(
             anno_rpath=anno_rpath,
@@ -125,6 +125,7 @@ class VidorPytorchTrain(data_utl.Dataset):
         self.transforms = transforms
         self.mode = mode
         self.task = task
+        self.save_dir = save_dir
 
     def __getitem__(self, index):
         """
@@ -139,21 +140,23 @@ class VidorPytorchTrain(data_utl.Dataset):
 
         vid_paths = video_path.split('/')
         img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
-        if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path=video_path,
-                                   image_dir=self.frames_rpath,
-                                   begin=start_f,
-                                   end=end_f)
-        else:
-            # imgs = load_flow_frames(self.root, vid, start_f, 64)
-            print('not supported')
-        # label = label[:, start_f: end_f]
+        if os.path.exists(img_dir_path):
+            if self.mode == 'rgb':
+                imgs = load_rgb_frames(video_path=video_path,
+                                       image_dir=self.frames_rpath,
+                                       begin=start_f,
+                                       end=end_f)
+            else:
+                # imgs = load_flow_frames(self.root, vid, start_f, 64)
+                print('not supported')
+            # label = label[:, start_f: end_f]
 
-        imgs = self.transforms(imgs)
+            imgs = self.transforms(imgs)
 
-        # return video_to_tensor(imgs), 0     # correct
-        # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
-        return video_to_tensor(imgs), torch.from_numpy(label)
+            # return video_to_tensor(imgs), 0     # correct
+            # return 0, torch.from_numpy(label)     # runtimeError sizes must be non-negative
+            return video_to_tensor(imgs), torch.from_numpy(label)
+        return 0, 0
 
     def __len__(self):
         return len(self.data)
@@ -186,22 +189,24 @@ class VidorPytorchExtract(data_utl.Dataset):
 
         video_path, label, start_f, end_f = self.data[index]
         vid_paths = video_path.split('/')
+        img_dir_path = os.path.join(self.frames_rpath, vid_paths[-2], vid_paths[-1][:-4])
 
-        if os.path.exists(os.path.join(self.save_dir, vid_paths[-2], vid_paths[-1][:-4] + '.npy')):
+        if os.path.exists(img_dir_path + '.npy'):
             return 0, 0, vid_paths[-2], vid_paths[-1][:-4]
 
-        if self.mode == 'rgb':
-            imgs = load_rgb_frames(video_path=video_path,
-                                   image_dir=self.frames_rpath,
-                                   begin=start_f,
-                                   end=end_f)
-        else:
-            # imgs = load_flow_frames(self.root, vid, start_f, 64)
-            print('not supported')
+        if os.path.exists(img_dir_path):
+            if self.mode == 'rgb':
+                imgs = load_rgb_frames(video_path=video_path,
+                                       image_dir=self.frames_rpath,
+                                       begin=start_f,
+                                       end=end_f)
+            else:
+                # imgs = load_flow_frames(self.root, vid, start_f, 64)
+                print('not supported')
 
-        imgs = self.transforms(imgs)
-
-        return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
+            imgs = self.transforms(imgs)
+            return video_to_tensor(imgs), torch.from_numpy(label), vid_paths[-2], vid_paths[-1][:-4]
+        return -1, -1, vid_paths[-2], vid_paths[-1][:-4]
 
     def __len__(self):
         return len(self.data)
@@ -215,6 +220,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-where', type=str, default="local")
     parser.add_argument('-split', type=str, default="test")
+    parser.add_argument('-dataset', type=str, default='ext')
     args = parser.parse_args()
 
     local_anno_rpath = '/home/daivd/PycharmProjects/vidor/annotation'
@@ -233,6 +239,11 @@ if __name__ == '__main__':
 
     task = 'action'
 
+    if args.dataset == 'train':
+        Dataset = VidorPytorchTrain
+    else:
+        Dataset = VidorPytorchExtract
+
     if args.where == 'gpu':
         anno_rpath = gpu_anno_rpath
         video_rpath = gpu_video_rpath
@@ -245,31 +256,34 @@ if __name__ == '__main__':
 
     if args.split == 'train':
 
-        dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
-                                    splits=['training'],
-                                    video_rpath=video_rpath,
-                                    mode=mode,
-                                    task=task,
-                                    frames_rpath=frames_rpath,
-                                    transforms=train_transforms,
-                                    low_memory=low_memory)
+        dataset = Dataset(anno_rpath=anno_rpath,
+                          splits=['training'],
+                          video_rpath=video_rpath,
+                          mode=mode,
+                          task=task,
+                          save_dir=save_dir,
+                          frames_rpath=frames_rpath,
+                          transforms=train_transforms,
+                          low_memory=low_memory)
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
     else:
-        val_dataset = VidorPytorchTrain(anno_rpath=anno_rpath,
-                                        splits=['validation'],
-                                        video_rpath=video_rpath,
-                                        mode=mode,
-                                        frames_rpath=frames_rpath,
-                                        task=task,
-                                        transforms=test_transforms,
-                                        low_memory=low_memory)
+        val_dataset = Dataset(anno_rpath=anno_rpath,
+                              splits=['validation'],
+                              video_rpath=video_rpath,
+                              mode=mode,
+                              save_dir=save_dir,
+                              frames_rpath=frames_rpath,
+                              task=task,
+                              transforms=test_transforms,
+                              low_memory=low_memory)
         dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=36,
                                                  pin_memory=True)
 
     for data in dataloader:
         # get the inputs
-        inputs, labels = data
-        print(inputs)
-        print(labels)
+        inputs, labels, a, b = data
+        if inputs.tolist()[0] != -1:
+            print(inputs.size())        # torch.Size([1, 3, 4, 224, 224])
+            print(labels.size())        # torch.Size([1, 1, 4])

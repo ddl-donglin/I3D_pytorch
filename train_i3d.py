@@ -19,6 +19,8 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
         init_lr=0.1, max_steps=64e3, mode='rgb', task='action', num_workers=36,
         batch_size=8 * 5, save_model='vidor_model', low_memory=True):
+
+    save_dir = 'output'     # This is useless, just 4 union
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
@@ -31,7 +33,8 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                       task=task,
                       frames_rpath=frames_rpath,
                       transforms=train_transforms,
-                      low_memory=low_memory)
+                      low_memory=low_memory,
+                      save_dir=save_dir)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,
                                              pin_memory=True)
@@ -43,7 +46,8 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                           frames_rpath=frames_rpath,
                           task=task,
                           transforms=test_transforms,
-                          low_memory=low_memory)
+                          low_memory=low_memory,
+                          save_dir=save_dir)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,
                                                  pin_memory=True)
 

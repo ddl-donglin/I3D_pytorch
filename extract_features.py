@@ -96,10 +96,10 @@ def run(anno_rpath, video_rpath, train_split=True, val_split=True,
                 continue
 
             b, c, t, h, w = inputs.shape
-            if t > 1600:
+            if t > 800:
                 features = []
-                for start in range(1, t - 56, 1600):
-                    end = min(t - 1, start + 1600 + 56)
+                for start in range(1, t - 56, 800):
+                    end = min(t - 1, start + 800 + 56)
                     start = max(1, start - 48)
                     with torch.no_grad():
                         ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda())

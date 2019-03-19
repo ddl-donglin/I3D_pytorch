@@ -68,7 +68,6 @@ def make_dataset(split_file, split, root, mode, num_classes=157):
         if data[vid]['subset'] != split:
             continue
 
-        print("="*20, root, "="*20, vid)
         if not os.path.exists(os.path.join(root, vid)):
             continue
         num_frames = len(os.listdir(os.path.join(root, vid)))

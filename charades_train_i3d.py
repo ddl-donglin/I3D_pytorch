@@ -17,20 +17,19 @@ from charades_dataset import Charades as Dataset
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3'
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-mode', type=str, help='rgb or flow')
-parser.add_argument('-save_model', type=str)
-parser.add_argument('-root', type=str)
-
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-mode', type=str, help='rgb or flow')
+# parser.add_argument('-save_model', type=str)
+# parser.add_argument('-root', type=str)
+#
+# args = parser.parse_args()
 
 
 def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='data/Charades_v1_rgb', train_split='data/charades.json',
         batch_size=8 * 5, save_model=''):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
-                                           videotransforms.RandomHorizontalFlip(),
-                                           ])
+                                           videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
     dataset = Dataset(train_split, 'training', root, mode, train_transforms)
@@ -131,4 +130,4 @@ def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='data/Charades_v1_rgb', tr
 
 if __name__ == '__main__':
     # need to add argparse
-    run(mode=args.mode, root=args.root, save_model=args.save_model)
+    run()

@@ -26,7 +26,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
 def run(init_lr=0.1, max_steps=64e3, mode='rgb', root='data/Charades_v1_rgb', train_split='data/charades.json',
-        batch_size=8 * 5, save_model=''):
+        batch_size=2 * 5, save_model=''):
     # setup dataset
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])

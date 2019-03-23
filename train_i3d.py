@@ -110,6 +110,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
                 # unified dimension
                 if per_frame_logits.size() != labels.size():
                     labels.resize_(per_frame_logits.size())
+                labels = labels.type(torch.cuda.FloatTensor)
 
                 # compute localization loss
                 loc_loss = F.binary_cross_entropy_with_logits(per_frame_logits, labels)

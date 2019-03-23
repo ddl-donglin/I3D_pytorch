@@ -17,8 +17,8 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
 def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
-        init_lr=0.001, max_steps=64e3, mode='rgb', task='action', num_workers=36,
-        batch_size=8 * 5, save_model='vidor_model', low_memory=True):
+        init_lr=0.001, max_steps=64e3, mode='rgb', task='action', num_workers=1,
+        batch_size=1, save_model='vidor_model', low_memory=True):
 
     save_dir = 'output'     # This is useless, just 4 union
     # setup dataset

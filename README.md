@@ -42,7 +42,7 @@ contains the code to load charades video segments for training.
 
 E.g.
 ```bash
-python train_i3d.py -anno_rpath /storage/dldi/PyProjects/vidor/annotation -video_rpath /storage/dldi/PyProjects/vidor/train_vids
+python train_i3d.py -anno_rpath /storage/dldi/PyProjects/vidor/annotation -video_rpath /storage/dldi/PyProjects/vidor/train_vids -num_workers 0
 ```
 
 This relied on having the optical flow and RGB frames extracted and saved as images on dist.

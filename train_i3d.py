@@ -17,7 +17,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
 def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
-        init_lr=0.001, max_steps=64e3, mode='rgb', task='action', num_workers=1,
+        init_lr=0.0001, max_steps=64e3, mode='rgb', task='action', num_workers=1,
         batch_size=1, save_model='vidor_model', low_memory=True):
 
     save_dir = 'output'     # This is useless, just 4 union
@@ -114,15 +114,15 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
 
                 # compute localization loss
                 loc_loss = F.binary_cross_entropy_with_logits(per_frame_logits, labels)
-                tot_loc_loss += loc_loss.data[0]
+                tot_loc_loss += loc_loss.item()
 
                 # compute classification loss (with max-pooling along time B x C x T)
                 cls_loss = F.binary_cross_entropy_with_logits(torch.max(per_frame_logits, dim=2)[0],
                                                               torch.max(labels, dim=2)[0])
-                tot_cls_loss += cls_loss.data[0]
+                tot_cls_loss += cls_loss.item()
 
                 loss = (0.5 * loc_loss + 0.5 * cls_loss) / num_steps_per_update
-                tot_loss += loss.data[0]
+                tot_loss += loss.item()
                 loss.backward()
 
                 if num_iter == num_steps_per_update and phase == 'train':

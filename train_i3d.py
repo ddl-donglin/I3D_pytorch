@@ -105,7 +105,11 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
 
                 per_frame_logits = i3d(inputs)
                 # upsample to input size
-                per_frame_logits = F.upsample(per_frame_logits, t, mode='linear')
+                per_frame_logits = F.upsample(per_frame_logits, t, mode='linear', align_corners=True)
+
+                # unified dimension
+                if per_frame_logits.size() != labels.size():
+                    labels.resize_(per_frame_logits.size())
 
                 # compute localization loss
                 loc_loss = F.binary_cross_entropy_with_logits(per_frame_logits, labels)

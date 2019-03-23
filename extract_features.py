@@ -4,6 +4,7 @@ import os
 import argparse
 
 import torch
+import torch.nn as nn
 from torch.autograd import Variable
 from torchvision import transforms
 import videotransforms
@@ -12,12 +13,12 @@ from pytorch_i3d import InceptionI3d
 from vidor_dataset import VidorPytorchExtract as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+device_ids = [0, 1]
 
 
 def run(anno_rpath, video_rpath, train_split=True, val_split=True,
         frames_rpath='data/Vidor_rgb/JPEGImages/', mode='rgb', batch_size=1,
         load_model='models/rgb_charades.pt', save_dir='output/features/', low_memory=True):
-
     train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
                                            videotransforms.RandomHorizontalFlip()])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
@@ -70,6 +71,8 @@ def run(anno_rpath, video_rpath, train_split=True, val_split=True,
         i3d = InceptionI3d(400, in_channels=2)
     else:
         i3d = InceptionI3d(400, in_channels=3)
+        i3d = nn.DataParallel(i3d, device_ids=device_ids)
+
     i3d.replace_logits(157)
     i3d.load_state_dict(torch.load(load_model))
     i3d.cuda()

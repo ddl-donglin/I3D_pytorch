@@ -14,6 +14,7 @@ from pytorch_i3d import InceptionI3d
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3'
+device_ids = [0, 1]
 
 
 def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
@@ -60,6 +61,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
         i3d.load_state_dict(torch.load('models/flow_imagenet.pt'))
     else:
         i3d = InceptionI3d(400, in_channels=3)
+        i3d = nn.DataParallel(i3d, device_ids=device_ids)
         i3d.load_state_dict(torch.load('models/rgb_imagenet.pt'))
 
     i3d.replace_logits(157)
@@ -105,7 +107,7 @@ def run(anno_rpath, video_rpath, frames_rpath='data/Vidor_rgb/JPEGImages/',
 
                 per_frame_logits = i3d(inputs)
                 # upsample to input size
-                per_frame_logits = F.upsample(per_frame_logits, t, mode='linear', align_corners=True)
+                per_frame_logits = F.interpolate(per_frame_logits, t, mode='linear', align_corners=True)
 
                 # unified dimension
                 if per_frame_logits.size() != labels.size():

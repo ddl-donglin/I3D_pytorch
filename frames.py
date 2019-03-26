@@ -131,9 +131,24 @@ def parallel_extract_frames(video_root_dir, img_root_dir):
                 print("=" * 20, img_path, 'is exist! ', "=" * 20)
 
 
+def parallel_ext_v1_frames(video_path, img_root_dir):
+    for each_vid in os.listdir(video_path):
+        each_img_path = os.path.join(img_root_dir, each_vid[:-4])
+
+        if each_img_path not in os.listdir(img_root_dir):
+            try:
+                os.makedirs(each_img_path)
+            except OSError:
+                pass
+
+            extract_all_frames(os.path.join(video_path, each_vid), each_img_path)
+
+
 if __name__ == '__main__':
     gpu_path = '/storage/dldi/PyProjects/vidor/train_vids'
     local_path = '/home/daivd/PycharmProjects/vidor/train_vids'
+    local_vidvrd_path = '/home/daivd/PycharmProjects/VidVRD-dataset/videos'
+    local_vidvrd_frames_path = '/home/daivd/PycharmProjects/VidVRD-dataset/frames'
     # for root, dirs, files in os.walk(local_path):
     #     for each_idx, each_file in enumerate(files):
     #         print('=' * 20, (each_idx, len(files)), '=' * 20)
@@ -141,4 +156,6 @@ if __name__ == '__main__':
     #         video_path_splits = each_vid_path.split('/')
     #         image_dir = os.path.join('data/frames', video_path_splits[-2], video_path_splits[-1][:-4] + '_frames')
     #         extract_all_frames(each_vid_path, image_dir)
-    parallel_extract_frames(gpu_path, 'data/frames')
+    # parallel_extract_frames(gpu_path, 'data/frames')
+
+    parallel_ext_v1_frames(local_vidvrd_path, local_vidvrd_frames_path)

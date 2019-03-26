@@ -55,6 +55,7 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
         vid_id = frame_path[0].split('/')[-1]
 
         print('Now is extracting: ', vid_id)
+        pbar.update(1)
 
         npy_save_dir = os.path.join(save_dir, vid_id)
         npy_path = os.path.join(npy_save_dir, vid_id + '.npy')
@@ -83,7 +84,6 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
             features = i3d.extract_features(inputs)
             np.save(npy_path, features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
 
-        pbar.update(1)
     pbar.close()
 
 

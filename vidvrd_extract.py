@@ -53,6 +53,9 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
         # get the inputs
         inputs, labels, frame_path = data
         vid_id = frame_path[0].split('/')[-1]
+
+        print('Now is extracting: ', vid_id)
+
         npy_save_dir = os.path.join(save_dir, vid_id)
         npy_path = os.path.join(npy_save_dir, vid_id + '.npy')
 

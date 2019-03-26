@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 from torchvision import transforms
+from tqdm import tqdm
 
 import videotransforms
 from pytorch_i3d import InceptionI3d
@@ -45,6 +46,9 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
     i3d.train(False)  # Set model to evaluate mode
 
     # Iterate over data.
+
+    print('Begin 2 extract features: ')
+    pbar = tqdm(total=800)
     for data in dataloader:
         # get the inputs
         inputs, labels, frame_path = data
@@ -60,10 +64,10 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
             continue
 
         b, c, t, h, w = inputs.shape
-        if t > 200:
+        if t > 800:
             features = []
-            for start in range(1, t - 56, 200):
-                end = min(t - 1, start + 200 + 56)
+            for start in range(1, t - 56, 800):
+                end = min(t - 1, start + 800 + 56)
                 start = max(1, start - 48)
                 with torch.no_grad():
                     ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda())
@@ -75,6 +79,9 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
                 inputs = Variable(inputs.cuda())
             features = i3d.extract_features(inputs)
             np.save(npy_path, features.squeeze(0).permute(1, 2, 3, 0).data.cpu().numpy())
+
+        pbar.update(1)
+    pbar.close()
 
 
 if __name__ == '__main__':

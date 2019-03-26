@@ -54,7 +54,7 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
         inputs, labels, frame_path = data
         vid_id = frame_path[0].split('/')[-1]
 
-        print('Now is extracting: ', vid_id)
+        # print('Now is extracting: ', vid_id)
         pbar.update(1)
 
         npy_save_dir = os.path.join(save_dir, vid_id)

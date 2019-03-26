@@ -64,10 +64,10 @@ def run(anno_rpath, frames_rpath, mode='rgb', batch_size=1,
             continue
 
         b, c, t, h, w = inputs.shape
-        if t > 800:
+        if t > 400:
             features = []
-            for start in range(1, t - 56, 800):
-                end = min(t - 1, start + 800 + 56)
+            for start in range(1, t - 56, 400):
+                end = min(t - 1, start + 400 + 56)
                 start = max(1, start - 48)
                 with torch.no_grad():
                     ip = Variable(torch.from_numpy(inputs.numpy()[:, :, start:end]).cuda())
